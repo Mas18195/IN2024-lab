@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title> 
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<!-- Script to get geolocation from browser pop-up -->
+<script>
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+        document.getElementById("latitude").value = position.coords.latitude;
+        document.getElementById("longitude").value = position.coords.longitude;
+    }
+</script>
+
+<div class="center"> <!-- Center content on page -->
+<body style="background-color:lightgrey;"> <!-- Defines Background color -->
+    <h1>Welcome, {{ session['username'] }}</h1> <!-- Displays session username to let user know -->
+    <p>Your API Key: {{ api_key }}</p>
+    <h2>Create a New Report</h2>
+    <form id="reportForm" method="POST" enctype="multipart/form-data" action="/report">
+        <label for="file">File:</label><br>
+        <input type="file" id="file" name="file" required><br><br>
+        <label for="description">Description of Image or Anything:</label><br>
+        <textarea id="description" name="description" required></textarea><br><br>
+
+        <button type="button" onclick="getLocation()">Get GPS Coordinates</button><br><br>
+        <h4>Enter Latitude and Longitude with Distance if not providing Browser Location</h4>
+        <label for="latitude">Latitude:</label><br>
+        <input type="number" id="latitude" name="latitude" step="any" required><br><br>
+        <label for="longitude">Longitude:</label><br>
+        <input type="number" id="longitude" name="longitude" step="any" required><br><br><br><br>
+    
+        <input type="hidden" name="api_key" value="{{ api_key }}">
+
+        <input type="submit" value="Submit">
+    </form>
+    <br>
+
+    <!-- Logout button -->
+    <form action="/logout" method="GET">
+        <button type="submit">Logout</button>
+    </form>
+
+</body>
+</html>
