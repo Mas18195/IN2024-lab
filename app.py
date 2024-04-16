@@ -6,7 +6,7 @@ import secrets
 import requests
 import os
 from transformers import pipeline
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
 
 app = Flask(__name__)
@@ -97,14 +97,16 @@ def query_reports(start_date=None, end_date=None, lat=None, long=None, dist=None
 
     # Parameters to sort by when provided
     if start_date:
-        query += f" AND datetime_entry >= '{start_date}'" # Filter record after start date
+        query += f" AND datetime_entry >= '{start_date}'" # Filter record to include start date and after
     if end_date:
-        query += f" AND datetime_entry <= '{end_date}'" # Filter record before start date
+        end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1) # Add an extra date to properly filter end_date
+        end_date = end_date.strftime('%Y-%m-%d') # Convert back to string
+        query += f" AND datetime_entry <= '{end_date}'" # Filter record to include end date and before
     if lat and long and dist:
         # Calculate the distance using Haversine formula and if it is less or equal to the inputted distance
         query += f" AND (6371 * 2 * ASIN(SQRT(SIN(RADIANS(({lat} - latitude) / 2) * SIN(RADIANS(({lat} - latitude) / 2)) + COS(RADIANS({lat})) * COS(RADIANS(latitude)) * SIN(RADIANS(({long} - longitude) / 2)) * SIN(RADIANS(({long} - longitude) / 2)))))) <= {dist}"
     if sort:
-        query += f" ORDER BY datetime_entry {'ASC' if sort == 'newest' else 'DESC'}" # Order by datetime
+        query += f" ORDER BY datetime_entry {'ASC' if sort == 'oldest' else 'DESC'}" # Order by datetime
     if max_reports:
         query += f" LIMIT {max_reports}" # Limit the number of records to inputted value
 
